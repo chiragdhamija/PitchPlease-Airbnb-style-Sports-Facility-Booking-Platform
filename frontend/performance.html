@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><title>Performance.now() Test</title></head>
+<body>
+  <h2>Measuring API response time using performance.now()</h2>
+  <button onclick="measureFetchTime()">Test Fetch</button>
+  <p id="output"></p>
+
+  <script>
+    function measureFetchTime() {
+      const start = performance.now();
+
+      fetch("/api/facilities/all")
+        .then(response => response.json())
+        .then(data => {
+          const end = performance.now();
+          const time = (end - start).toFixed(2);
+          document.getElementById("output").innerText = `Response time: ${time} ms`;
+        });
+    }
+  </script>
+</body>
+</html>

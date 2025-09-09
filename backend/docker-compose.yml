@@ -1,0 +1,189 @@
+services:
+  # Database
+  postgres:
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      # Add trust authentication method
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db-setup.sql:/docker-entrypoint-initdb.d/db-setup.sql
+    networks:
+      - pitchplease-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway - Main entry point
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/pitchplease
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8080
+      # Disable Spring Security
+      - SPRING_SECURITY_ENABLED=false
+      - MANAGEMENT_SECURITY_ENABLED=false
+      - EUREKA_SERVICE_URL=http://eurekaserver:8761/eureka/
+    networks:
+      - pitchplease-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_started
+
+  # Facility Discovery Service
+  facility-discovery-service:
+    build: ./facility-discovery-service
+    expose:
+      - "8094"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/pitchplease
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8094
+      # Disable Spring Security
+      - SPRING_SECURITY_ENABLED=false
+      - MANAGEMENT_SECURITY_ENABLED=false
+    networks:
+      - pitchplease-network
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+  auth-service:
+    build: ./auth-service
+    # expose:
+    #   - "8091"
+    ports:
+      - "8091:8091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/pitchplease
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8091
+      # Disable Spring Security
+      - SPRING_SECURITY_ENABLED=false
+      - MANAGEMENT_SECURITY_ENABLED=false
+      - EUREKA_SERVICE_URL=http://eurekaserver:8761/eureka/
+    networks:
+      - pitchplease-network
+    depends_on:
+      api-gateway:
+        condition: service_started
+      eurekaserver:
+        condition: service_started
+
+  # User Service
+  user-service:
+    build: ./user-service
+    # expose:
+    #   - "8091"
+    ports:
+      - "8095:8095"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/pitchplease
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8095
+      # Disable Spring Security
+      - SPRING_SECURITY_ENABLED=false
+      - MANAGEMENT_SECURITY_ENABLED=false
+      - EUREKA_SERVICE_URL=http://eurekaserver:8761/eureka/
+    networks:
+      - pitchplease-network
+    depends_on:
+      api-gateway:
+        condition: service_started
+      eurekaserver:
+        condition: service_started
+
+  eurekaserver:
+    image: eurekaserver:latest
+    build:
+      context: ./eurekaserver
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_APPLICATION_NAME=eurekaserver
+      - EUREKA_INSTANCE_HOSTNAME=localhost
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - SERVER_PORT=8761
+    networks:
+      - pitchplease-network
+
+  # Booking Service
+  booking-service:
+    build: ./booking-service
+    expose:
+      - "8092"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/pitchplease
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8092
+      # Disable Spring Security
+      - SPRING_SECURITY_ENABLED=false
+      - MANAGEMENT_SECURITY_ENABLED=false
+    networks:
+      - pitchplease-network
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+  # Payment Service
+  payment-service:
+    build: ./payment-service
+    expose:
+      - "8093"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/pitchplease
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SERVER_PORT=8093
+      # Disable Spring Security
+      - SPRING_SECURITY_ENABLED=false
+      - MANAGEMENT_SECURITY_ENABLED=false
+    networks:
+      - pitchplease-network
+    depends_on:
+      api-gateway:
+        condition: service_started
+
+  # Frontend Service
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"  # Map to standard HTTP port
+    volumes:
+      - ../frontend:/usr/share/nginx/html  # Mount your frontend code
+      - ../frontend/nginx/conf.d:/etc/nginx/conf.d  # Mount the entire conf.d directory
+    networks:
+      - pitchplease-network
+    depends_on:
+      - api-gateway
+
+networks:
+  pitchplease-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

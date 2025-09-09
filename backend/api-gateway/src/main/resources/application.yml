@@ -1,0 +1,122 @@
+# # API Gateway Configuration
+# spring:
+#   application:
+#     name: api-gateway
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/pitchplease
+#     username: postgres
+#     password: postgres
+#     driver-class-name: org.postgresql.Driver
+#   jpa:
+#     hibernate:
+#       ddl-auto: update
+#     show-sql: true
+#     properties:
+#       hibernate:
+#         format_sql: true
+#         dialect: org.hibernate.dialect.PostgreSQLDialect
+#   # security:
+#   #   user:
+#   #     name: admin
+#   #     password: admin
+
+#   # cloud:
+#   #   gateway:
+#   #     routes:
+#   #       - id: user-service
+#   #         uri: http://localhost:8080
+#   #         predicates:
+#   #           - Path=/api/auth/**
+#     # cloud:
+#     #   gateway:
+#     #     globalcors:
+#     #       corsConfigurations:
+#     #         '[/**]':
+#     #           allowedOrigins: "*"
+#     #           allowedMethods:
+#     #             - GET
+#     #             - POST
+#     #             - PUT
+#     #             - DELETE
+#     #             - OPTIONS
+#     #           allowedHeaders: "*"
+
+
+# server:
+#   port: 8080
+
+# # # Customize application settings
+# # pitchplease:
+# #   app:
+# #     jwtSecret: pitchpleaseSecretKey
+# #     jwtExpirationMs: 86400000
+
+# # Microservices URLs
+# microservice:
+#   facility-management-service:
+#     url: http://facility-management-service:8090
+#   booking-service:
+#     url: http://booking-service:8092
+#   user-service:
+#     url: http://user-service:8091
+#   payment-service:
+#     url: http://payment-service:8093
+#   facility-discovery-service:
+#     url: http://facility-discovery-service:8094
+
+# # Logging Configuration
+# logging:
+#   level:
+#     com.pitchplease.gateway: DEBUG
+#     org.springframework.web: INFO
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: apigateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      httpclient:
+        connect-timeout: 60000
+        response-timeout: 60s
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+    register-with-eureka: false
+      # But it must read the registry
+    fetch-registry: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.web.access.ExceptionTranslationFilter: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.security.web.authentication: DEBUG
+    org.springframework.security.web.access.intercept.FilterSecurityInterceptor: DEBUG
+    org.springframework.security.access.intercept.AbstractSecurityInterceptor: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    com.netflix.discovery: DEBUG
+    com.netflix.eureka: DEBUG
+    org.springframework.cloud.netflix.eureka: DEBUG
+
+microservice:
+  facility-management-service:
+    url: http://facility-management-service:8090
+  booking-service:
+    url: http://booking-service:8092
+  auth-service:
+    url: http://auth-service:8091
+  payment-service:
+    url: http://payment-service:8093
+  facility-discovery-service:
+    url: http://facility-discovery-service:8094
+  user-service:
+    url: http://user-service:8095

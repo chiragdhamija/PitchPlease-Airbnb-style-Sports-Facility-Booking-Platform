@@ -1,0 +1,74 @@
+# spring:
+#   application:
+#     name: user-service
+
+  # config:
+  #   import: optional:file:.env[.properties]
+  # # datasource:
+  # #   name: mysql
+  # #   url: jdbc:mysql://${SECURITY_DB_IP:localhost}:${SECURITY_DB_PORT:3306}/springbootmicroservicesjwtuser
+  # #   username: ${DATABASE_USERNAME:root}
+  # #   password: ${DATABASE_PASSWORD:password}
+  # jpa:
+  #   properties:
+  #     hibernate:
+  #       dialect: org.hibernate.dialect.MySQLDialect
+  #       format_sql: true
+  #   hibernate:
+  #     ddl-auto: update
+  #     naming:
+  #       physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+# spring:
+#   application:
+#     name: user-service
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/pitchplease
+#     username: postgres
+#     password: postgres
+#     driver-class-name: org.postgresql.Driver
+#   jpa:
+#     hibernate:
+#       ddl-auto: update
+#     show-sql: true
+#     properties:
+#       hibernate:
+#         format_sql: true
+#         dialect: org.hibernate.dialect.PostgreSQLDialect
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/pitchplease  # Updated for PostgreSQL
+    username: postgres  # Database username for PostgreSQL
+    password: postgres  # Database password for PostgreSQL
+    driver-class-name: org.postgresql.Driver  # PostgreSQL driver class
+  jpa:
+    hibernate:
+      ddl-auto: update  # Automatically updates schema (adjust for production)
+    show-sql: true  # Shows SQL statements in logs (can be false for production)
+    properties:
+      hibernate:
+        format_sql: true  # Formats SQL output for readability
+        dialect: org.hibernate.dialect.PostgreSQLDialect  # Hibernate dialect for PostgreSQL
+
+
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+
+server:
+  port: 8095
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.web.access.ExceptionTranslationFilter: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.security.web.authentication: DEBUG
+    org.springframework.security.web.access.intercept.FilterSecurityInterceptor: DEBUG
+    org.springframework.security.access.intercept.AbstractSecurityInterceptor: DEBUG
+

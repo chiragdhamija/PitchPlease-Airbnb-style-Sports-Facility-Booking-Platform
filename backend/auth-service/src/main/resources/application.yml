@@ -1,0 +1,58 @@
+# spring:
+#   application:
+#     name: user-service
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/pitchplease
+#     username: postgres
+#     password: postgres
+#     driver-class-name: org.postgresql.Driver
+#   jpa:
+#     hibernate:
+#       ddl-auto: update
+#     show-sql: true
+#     properties:
+#       hibernate:
+#         format_sql: true
+#         dialect: org.hibernate.dialect.PostgreSQLDialect
+#   # security:
+#   #   user:
+#   #     name: admin
+#   #     password: admin
+
+# server:
+#   port: 8091  # Random port assignment, will be registered with discovery service
+
+# # Customize application settings
+# pitchplease:
+#   app:
+#     jwtSecret: pitchpleaseSecretKey
+#     jwtExpirationMs: 86400000
+
+
+spring:
+  application:
+    name: auth-service
+  cloud:
+    loadbalancer:
+       eager-load:
+        enabled: true
+server:
+  port: 8091
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka/}
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.web.access.ExceptionTranslationFilter: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.security.web.authentication: DEBUG
+    org.springframework.security.web.access.intercept.FilterSecurityInterceptor: DEBUG
+    org.springframework.security.access.intercept.AbstractSecurityInterceptor: DEBUG

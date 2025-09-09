@@ -29,7 +29,7 @@ public class GeminiAdapter implements LLMService {
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
         // You should ideally read these from configuration, but for quick fix:
-        this.apiKey = "AIzaSyCEAtdr_Z0DueNOx_6Ej3IrRrqOOoUuplo"; // Replace with actual key
+        this.apiKey = ""; // Replace with actual key
         this.apiEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
     }
     
